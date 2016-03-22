@@ -18,7 +18,7 @@ trait UniqueWithInjector
         if ($this->exists) {
             // If the identifier isn't set, add it.
             if (count($parameters) < 3 || ! preg_match('/^\d+(\s?=\s?\w*)?$/', last($parameters))) {
-                $parameters[] = $this->getModel()->getKey();
+                $parameters[] = $this->getModel()->getKey() . ' = ' . $this->getKeyName();
             }
         }
 

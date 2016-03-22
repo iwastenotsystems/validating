@@ -26,7 +26,7 @@ class UniqueWithInjectorTest extends PHPUnit_Framework_TestCase
 
         $result = $this->trait->getRules();
 
-        $this->assertEquals(['first_name' => ['unique_with:users,last_name,1']], $result);
+        $this->assertEquals(['first_name' => ['unique_with:users,last_name,1 = id']], $result);
     }
 
     public function testUpdateRulesUniquesUniqueWithDoesNotOverrideProvidedParameters()
