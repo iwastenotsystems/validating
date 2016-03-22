@@ -27,6 +27,13 @@ trait ValidatingTrait
     protected $validating = true;
 
     /**
+     * Whether the model should cast attributes before validation/saving or not.
+     *
+     * @var bool
+     */
+    protected $preCasting = true;
+
+    /**
      * The Validator factory class used for validation.
      *
      * @return \Illuminate\Validation\Factory
@@ -63,6 +70,28 @@ trait ValidatingTrait
     public function setValidating($value)
     {
         $this->validating = (boolean) $value;
+    }
+
+    /**
+     * Returns whether or not the model will attempt to validate
+     * itself when saving.
+     *
+     * @return bool
+     */
+    public function getPreCasting()
+    {
+        return $this->preCasting;
+    }
+
+     /**
+     * Set whether the model should attempt validation on saving.
+     *
+     * @param  bool $value
+     * @return void
+     */
+    public function setPreCasting($value)
+    {
+        $this->preCasting = (boolean) $value;
     }
 
     /**
@@ -132,8 +161,10 @@ trait ValidatingTrait
     {
         $attributes = $this->getModel()->getAttributes();
 
-        foreach ($attributes as $key => $value) {
-            $attributes[$key] = $this->getModel()->getAttributeValue($key);
+        if ($this->preCasting) {
+            foreach ($attributes as $key => $value) {
+                $attributes[$key] = $this->getModel()->getAttributeValue($key);
+            }
         }
 
         return $attributes;
