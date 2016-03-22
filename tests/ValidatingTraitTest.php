@@ -327,6 +327,48 @@ class ValidatingTraitTest extends PHPUnit_Framework_TestCase
         $this->trait->makeValidator();
     }
 
+    public function testMakeValidatorIgnoresCleanAttributesOnUpdate()
+    {
+        $validatorMock = Mockery::mock('ValidatorStub');
+        $attributes = $this->trait->getModelAttributes();
+        $rules = array_map(
+            function ($x) { return explode('|', $x); },
+            $this->trait->getRules()
+        );
+        $validatorMock->shouldReceive('make')
+            ->once()
+            ->with($attributes, $rules, Mockery::any())
+            ->andReturn($validatorMock);
+
+        $this->trait->setValidator($validatorMock);
+
+        $this->assertFalse($this->trait->exists);
+        $this->trait->makeValidator($this->trait->getRules());
+
+        $this->trait->setRawAttributes([], true);
+        $this->trait->exists = true;
+
+        $this->assertFalse($this->trait->isDirty());
+
+        $attributes = ['foo' => 'bar'];
+        $rules = array_map(
+            function ($x) { return explode('|', $x); },
+            array_intersect_key($this->trait->getRules(), $attributes)
+        );
+
+        $validatorMock->shouldReceive('make')
+            ->once()
+            ->with($attributes, $rules, Mockery::any())
+            ->andReturn($validatorMock);
+
+        $this->assertFalse($this->trait->isDirty());
+        $this->trait->setAttribute('foo', 'bar');
+        $this->assertTrue($this->trait->exists);
+        $this->assertEquals($attributes, $this->trait->getDirty());
+
+        $this->trait->makeValidator($this->trait->getRules());
+    }
+
     public function testThrowValidationException()
     {
         $this->setExpectedException('Watson\Validating\ValidationException');

@@ -384,6 +384,10 @@ trait ValidatingTrait
             $rules = $this->injectUniqueIdentifierToRules($rules);
         }
 
+        if ($this->exists) {
+            $rules = array_only($rules, array_keys($this->getDirty()));
+        }
+
         $messages = $this->getValidationMessages();
 
         $validator = $this->getValidator()->make($attributes, $rules, $messages);
